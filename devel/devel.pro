@@ -1,5 +1,5 @@
 TEMPLATE = app
-CONFIG += c++14
+CONFIG += c++11
 CONFIG -= app_bundle
 CONFIG -= qt
 
@@ -12,7 +12,4 @@ HEADERS += \
 
 
 
-#todos
 
-#concatenate variable number of strings
-#concatenate compiletime if
