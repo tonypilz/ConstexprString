@@ -34,18 +34,17 @@ constexpr auto TMP_FILE_2 = concatenate(TMP_DIR,"/file2");
 #include <iostream>
 #include "c_string_concatenate.h"
 
-constexpr char foo[] = "f";
-constexpr char bar[] = "b";
+constexpr char foo[] = "foo";
+constexpr char bar[] = "bar";
 constexpr auto foobar = concatenate(foo, bar);
 
-int main_()
+int main()
 {
-    std::cout << foobar << std::endl; //prints "fb"
+    std::cout << foobar << std::endl; //prints "foobar"
     return 0;
 }
 ``` 
 
-## Known Issues
+## Known Issues / Current State
 
-![#f03c15](https://placehold.it/15/f03c15/000000?text=+) Currently limited by compiler memory consumption due to combinatorial explosion, 
-so compiling with longer c-strings or more than a couple of chars doesnt finish!
+![#f03c15](https://placehold.it/15/f03c15/000000?text=+) The library is currently very limited due to the combinatorial explosion coming with the present implementation. So compiling with longer c-strings or more than a couple of chars wont finish! (The foo bar example is at the limit with a mingw32 compiler due to memory exhaustion). There no known solution to this problem at the moment - sugestions are welcome ('if constexpr' doesnt work).
