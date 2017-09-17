@@ -1,5 +1,5 @@
 TEMPLATE = app
-CONFIG += c++11
+CONFIG += c++14
 CONFIG -= app_bundle
 CONFIG -= qt
 
@@ -8,7 +8,9 @@ SOURCES += main.cpp \
 
 HEADERS += \
     tmp.h \
-    c_string_concatenate.h
+    c_string_concatenate_via_template_char_list_not_practical.h \
+    cstring_concatenation.h \
+    tests.h
 
 
 

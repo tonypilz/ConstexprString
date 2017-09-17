@@ -1,13 +1,13 @@
 #include <iostream>
-#include "c_string_concatenate.h"
+#include "cstring_concatenation.h"
 
 constexpr char foo[] = "foo";
 constexpr char bar[] = "bar";
-constexpr auto foobar = concatenate(foo, bar);
+constexpr auto foobar = concatenate(foo, " ", bar);
 
 int main_()
 {
-    std::cout << foobar << std::endl; //prints "foobar"
+    std::cout << foobar << std::endl; //prints "foo bar"
     return 0;
 }
 
