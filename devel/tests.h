@@ -2,9 +2,6 @@
 
 #include "cstring_concatenation.h"
 
-#include <cassert>
-#include <cstring>
-
 
 constexpr char cref1[] = "abcd1";
 constexpr char cref2[] = "xabcd2";
@@ -25,53 +22,59 @@ constexpr char expected_cstring1_cref1[]    = "efg1abcd1";
 constexpr char expected_cstring1_cstring2[] = "efg1yyyefg2";
 
 
-template<int N, int M>
-bool isEqual( detail::CString<N> const& s1,         detail::const_char_array_ref<M> s2) {
-    static_assert(N==M,"");
-    return strcmp(s1.str,s2)==0;
-}
 
+
+template<int N, int M>
+constexpr bool isEqual( detail::CString<N> const& s1,         detail::const_char_array_ref<M> s2) {
+    static_assert(N==M,"");
+
+    for(int i=0;i<N;++i)
+        if (s1.str[i]!=s2[i]) return false;
+
+    return true;
+
+}
 
 
 void test(){
 
-    assert(isEqual(detail::makeCString(""),""));
-    assert(isEqual(detail::makeCString("ab"),"ab"));
+    static_assert(isEqual(detail::makeCString(""),""),"");
+    static_assert(isEqual(detail::makeCString("ab"),"ab"),"");
 
-    assert(isEqual(concatenate(cref1,""),cref1));
-    assert(isEqual(concatenate("",""),""));
-    assert(isEqual(concatenate("",cref1),cref1));
+    static_assert(isEqual(concatenate(cref1,""),cref1),"");
+    static_assert(isEqual(concatenate("",""),""),"");
+    static_assert(isEqual(concatenate("",cref1),cref1),"");
 
-    assert(isEqual(cref1_cstring1,expected_cref1_cstring1));
-    assert(isEqual(cref1_cref2,expected_cref1_cref2));
-    assert(isEqual(cstring1_cref1,expected_cstring1_cref1));
-    assert(isEqual(cstring1_cstring2,expected_cstring1_cstring2));
+    static_assert(isEqual(cref1_cstring1,expected_cref1_cstring1),"");
+    static_assert(isEqual(cref1_cref2,expected_cref1_cref2),"");
+    static_assert(isEqual(cstring1_cref1,expected_cstring1_cref1),"");
+    static_assert(isEqual(cstring1_cstring2,expected_cstring1_cstring2),"");
 
     //3er
 
-    assert(isEqual(concatenate("","",""),""));
+    static_assert(isEqual(concatenate("","",""),""),"");
 
-    assert(isEqual(concatenate("",cref1,cref2),expected_cref1_cref2));
-    assert(isEqual(concatenate(cref1,"",cref2),expected_cref1_cref2));
-    assert(isEqual(concatenate(cref1,cref2,""),expected_cref1_cref2));
+    static_assert(isEqual(concatenate("",cref1,cref2),expected_cref1_cref2),"");
+    static_assert(isEqual(concatenate(cref1,"",cref2),expected_cref1_cref2),"");
+    static_assert(isEqual(concatenate(cref1,cref2,""),expected_cref1_cref2),"");
 
-    assert(isEqual(concatenate(cref1,"",""),cref1));
-    assert(isEqual(concatenate("",cref1,""),cref1));
-    assert(isEqual(concatenate("","",cref1),cref1));
+    static_assert(isEqual(concatenate(cref1,"",""),cref1),"");
+    static_assert(isEqual(concatenate("",cref1,""),cref1),"");
+    static_assert(isEqual(concatenate("","",cref1),cref1),"");
 
 
-    assert(isEqual(concatenate("",cref1,cstring1),expected_cref1_cstring1));
-    assert(isEqual(concatenate(cref1,"",cstring1),expected_cref1_cstring1));
-    assert(isEqual(concatenate(cref1,cstring1,""),expected_cref1_cstring1));
+    static_assert(isEqual(concatenate("",cref1,cstring1),expected_cref1_cstring1),"");
+    static_assert(isEqual(concatenate(cref1,"",cstring1),expected_cref1_cstring1),"");
+    static_assert(isEqual(concatenate(cref1,cstring1,""),expected_cref1_cstring1),"");
 
-    assert(isEqual(concatenate(cstring1,"",""),expected_cstring1));
-    assert(isEqual(concatenate("",cstring1,""),expected_cstring1));
-    assert(isEqual(concatenate("","",cstring1),expected_cstring1));
+    static_assert(isEqual(concatenate(cstring1,"",""),expected_cstring1),"");
+    static_assert(isEqual(concatenate("",cstring1,""),expected_cstring1),"");
+    static_assert(isEqual(concatenate("","",cstring1),expected_cstring1),"");
 
-    assert(isEqual(concatenate("",cstring1,cref1),expected_cstring1_cref1));
-    assert(isEqual(concatenate(cstring1,"",cref1),expected_cstring1_cref1));
-    assert(isEqual(concatenate(cstring1,cref1,""),expected_cstring1_cref1));
+    static_assert(isEqual(concatenate("",cstring1,cref1),expected_cstring1_cref1),"");
+    static_assert(isEqual(concatenate(cstring1,"",cref1),expected_cstring1_cref1),"");
+    static_assert(isEqual(concatenate(cstring1,cref1,""),expected_cstring1_cref1),"");
 
-    assert(isEqual(concatenate(cstring1,cref1,"foo",cstring1,cstring1,cstring1),"efg1abcd1fooefg1efg1efg1"));
+    static_assert(isEqual(concatenate(cstring1,cref1,"foo",cstring1,cstring1,cstring1),"efg1abcd1fooefg1efg1efg1"),"");
 }
 
