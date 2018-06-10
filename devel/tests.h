@@ -23,27 +23,28 @@ constexpr char expected_ConstexprString1_ConstexprString2[] = "efg1yyyefg2";
 
 
 
+static_assert(ces::make_string(L"") == L"","__________");
+static_assert(ces::make_string(L"ab") == L"ab","__________");
+static_assert(ces::make_string(U"ab") == U"ab","__________");
+
+static_assert(ces::make_string("") == "","__________");
+static_assert(ces::make_string("ab") == "ab","__________");
+
+static_assert(ces::make_string("") + "" == "","__________");
+static_assert(ces::make_string("") + cref1 == cref1,"__________");
+
+static_assert(cref1_ConstexprString1 == expected_cref1_ConstexprString1,"__________");
+static_assert(ConstexprString1_cref1 == expected_ConstexprString1_cref1,"__________");
+static_assert(ConstexprString1_ConstexprString2 == expected_ConstexprString1_ConstexprString2,"__________");
+
+static_assert(ConstexprString1 + cref1 + "foo" + ConstexprString1 + ConstexprString1 + ConstexprString1 == "efg1abcd1fooefg1efg1efg1","__________");
 
 
 
-static_assert(ces::make_string("") == "","test failed");
-static_assert(ces::make_string("ab") == "ab","test failed");
+static_assert(ces::make_string("").empty()==true,"__________");
+static_assert(ces::make_string("").length()==0,"__________");
+static_assert(ces::make_string("1").length()==1,"__________");
+static_assert(ces::make_string("1").empty()==false,"__________");
 
-static_assert(ces::make_string("") + "" == "","test failed");
-static_assert(ces::make_string("") + cref1 == cref1,"test failed");
-
-static_assert(cref1_ConstexprString1 == expected_cref1_ConstexprString1,"test failed");
-static_assert(ConstexprString1_cref1 == expected_ConstexprString1_cref1,"test failed");
-static_assert(ConstexprString1_ConstexprString2 == expected_ConstexprString1_ConstexprString2,"test failed");
-
-static_assert(ConstexprString1 + cref1 + "foo" + ConstexprString1 + ConstexprString1 + ConstexprString1 == "efg1abcd1fooefg1efg1efg1","test failed");
-
-
-
-static_assert(ces::make_string("").empty()==true,"test failed");
-static_assert(ces::make_string("").length()==0,"test failed");
-static_assert(ces::make_string("1").length()==1,"test failed");
-static_assert(ces::make_string("1").empty()==false,"test failed");
-
-
-//static_assert(conditional(true , ces::make_string("ab") , ces::make_string("c"))=="ab","test failed");
+constexpr auto xx = ces::make_string("ab");
+static_assert(ces::conditional(false , "c", xx)==xx,"__________");
