@@ -24,8 +24,8 @@ class ConstexprString{
 public:
 
     using Classtype = ConstexprString<capacity,Char>;
-    static constexpr Size StorageArraySize = capacity+1;
-    using StorageArray = char_array<StorageArraySize,Char>;  // the + 1 asserts '\0' terminatability
+    static constexpr Size StorageArraySize = capacity+1; // the + 1 asserts '\0' terminatability
+    using StorageArray = char_array<StorageArraySize,Char>;  
 
     using iterator = ConstexprString_iterator<Char>;
     using const_iterator = ConstexprString_const_iterator<Char>;
