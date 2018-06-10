@@ -2,7 +2,7 @@
 
 
 
-//// cases with more than 2 args of type CString (note that array ref cannot be used due to decay to const char* )
+//// cases with more than 2 args of type ConstexprString (note that array ref cannot be used due to decay to const char* )
 
 //template<template <int> class S1, template<int> class S2, int N, int M, typename... Other>
 //constexpr auto concatenate(S1<N> const& s1, S2<M> const& s2, Other... other) {
@@ -15,7 +15,7 @@
 
 //template<template<int> class S2, int N, int M, typename... Other>
 //constexpr auto concatenate(detail::const_char_array_ref<N> s1, S2<M> const& s2, Other... other) {
-//    return concatenate( detail::CStringType<N,M>(s1,s2),other...);
+//    return concatenate( detail::ConstexprStringType<N,M>(s1,s2),other...);
 //}
 
 //template<int N, int M, typename... Other>

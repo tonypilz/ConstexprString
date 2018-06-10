@@ -5,76 +5,45 @@
 
 constexpr char cref1[] = "abcd1";
 constexpr char cref2[] = "xabcd2";
-constexpr auto cstring1 = detail::makeCString("efg1");
-constexpr auto cstring2 = detail::makeCString("yyyefg2");
-constexpr char expected_cstring1[]    = "efg1";
+constexpr auto ConstexprString1 = make_string("efg1");
+constexpr auto ConstexprString2 = make_string("yyyefg2");
+constexpr char expected_ConstexprString1[]    = "efg1";
 
-constexpr auto cref1_cstring1    = concatenate(cref1,cstring1);
-constexpr auto cref1_cref2       = concatenate(cref1,cref2);
-constexpr auto cstring1_cref1    = concatenate(cstring1,cref1);
-constexpr auto cstring1_cstring2 = concatenate(cstring1,cstring2);
-
+constexpr auto cref1_ConstexprString1    = cref1 + ConstexprString1;
+constexpr auto ConstexprString1_cref1    = ConstexprString1 + cref1;
+constexpr auto ConstexprString1_ConstexprString2 = ConstexprString1 + ConstexprString2;
 
 
-constexpr char expected_cref1_cstring1[]    = "abcd1efg1";
+
+constexpr char expected_cref1_ConstexprString1[]    = "abcd1efg1";
 constexpr char expected_cref1_cref2 []      = "abcd1xabcd2";
-constexpr char expected_cstring1_cref1[]    = "efg1abcd1";
-constexpr char expected_cstring1_cstring2[] = "efg1yyyefg2";
+constexpr char expected_ConstexprString1_cref1[]    = "efg1abcd1";
+constexpr char expected_ConstexprString1_ConstexprString2[] = "efg1yyyefg2";
 
 
 
 
-template<int N, int M>
-constexpr bool isEqual( detail::CString<N> const& s1,         detail::const_char_array_ref<M> s2) {
-    static_assert(N==M,"");
-
-    for(int i=0;i<N;++i)
-        if (s1.str[i]!=s2[i]) return false;
-
-    return true;
-
-}
 
 
-void test(){
 
-    static_assert(isEqual(detail::makeCString(""),""),"");
-    static_assert(isEqual(detail::makeCString("ab"),"ab"),"");
+static_assert(make_string("") == "","test failed");
+static_assert(make_string("ab") == "ab","test failed");
 
-    static_assert(isEqual(concatenate(cref1,""),cref1),"");
-    static_assert(isEqual(concatenate("",""),""),"");
-    static_assert(isEqual(concatenate("",cref1),cref1),"");
+static_assert(make_string("") + "" == "","test failed");
+static_assert(make_string("") + cref1 == cref1,"test failed");
 
-    static_assert(isEqual(cref1_cstring1,expected_cref1_cstring1),"");
-    static_assert(isEqual(cref1_cref2,expected_cref1_cref2),"");
-    static_assert(isEqual(cstring1_cref1,expected_cstring1_cref1),"");
-    static_assert(isEqual(cstring1_cstring2,expected_cstring1_cstring2),"");
+static_assert(cref1_ConstexprString1 == expected_cref1_ConstexprString1,"test failed");
+static_assert(ConstexprString1_cref1 == expected_ConstexprString1_cref1,"test failed");
+static_assert(ConstexprString1_ConstexprString2 == expected_ConstexprString1_ConstexprString2,"test failed");
 
-    //3er
-
-    static_assert(isEqual(concatenate("","",""),""),"");
-
-    static_assert(isEqual(concatenate("",cref1,cref2),expected_cref1_cref2),"");
-    static_assert(isEqual(concatenate(cref1,"",cref2),expected_cref1_cref2),"");
-    static_assert(isEqual(concatenate(cref1,cref2,""),expected_cref1_cref2),"");
-
-    static_assert(isEqual(concatenate(cref1,"",""),cref1),"");
-    static_assert(isEqual(concatenate("",cref1,""),cref1),"");
-    static_assert(isEqual(concatenate("","",cref1),cref1),"");
+static_assert(ConstexprString1 + cref1 + "foo" + ConstexprString1 + ConstexprString1 + ConstexprString1 == "efg1abcd1fooefg1efg1efg1","test failed");
 
 
-    static_assert(isEqual(concatenate("",cref1,cstring1),expected_cref1_cstring1),"");
-    static_assert(isEqual(concatenate(cref1,"",cstring1),expected_cref1_cstring1),"");
-    static_assert(isEqual(concatenate(cref1,cstring1,""),expected_cref1_cstring1),"");
 
-    static_assert(isEqual(concatenate(cstring1,"",""),expected_cstring1),"");
-    static_assert(isEqual(concatenate("",cstring1,""),expected_cstring1),"");
-    static_assert(isEqual(concatenate("","",cstring1),expected_cstring1),"");
+static_assert(make_string("").empty()==true,"test failed");
+static_assert(make_string("").length()==0,"test failed");
+static_assert(make_string("1").length()==1,"test failed");
+static_assert(make_string("1").empty()==false,"test failed");
 
-    static_assert(isEqual(concatenate("",cstring1,cref1),expected_cstring1_cref1),"");
-    static_assert(isEqual(concatenate(cstring1,"",cref1),expected_cstring1_cref1),"");
-    static_assert(isEqual(concatenate(cstring1,cref1,""),expected_cstring1_cref1),"");
 
-    static_assert(isEqual(concatenate(cstring1,cref1,"foo",cstring1,cstring1,cstring1),"efg1abcd1fooefg1efg1efg1"),"");
-}
-
+//static_assert(conditional(true , make_string("ab") , make_string("c"))=="ab","test failed");

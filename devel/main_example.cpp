@@ -3,11 +3,16 @@
 
 constexpr char foo[] = "foo";
 constexpr char bar[] = "bar";
-constexpr auto foobar = concatenate(foo, " ", bar);
+constexpr auto foobar = make_string(foo) + " " + bar;
 
 int main_()
 {
-    std::cout << foobar << std::endl; //prints "foo bar"
+
+    auto copy = foobar;
+
+
+
+    std::cout << copy << std::endl; //prints "foo bar"
     return 0;
 }
 
