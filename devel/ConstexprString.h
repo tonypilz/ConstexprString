@@ -19,8 +19,10 @@
 
 // substr(s1, 4) + "foo"
 
+// add tests
 
-namespace detail {
+namespace ces { //ConstexprString
+
 
 using Char = char;
 using Size = int;
@@ -107,77 +109,83 @@ private:
 };
 
 
-} //namespace
-
-template<detail::Size N>
-constexpr detail::ConstexprString<N-1> make_string(detail::const_char_array_ref<N> s) {
+template<ces::Size N>
+constexpr ces::ConstexprString<N-1> make_string(ces::const_char_array_ref<N> s) {
     return {s};
 }
 
 
 template<typename T>
-constexpr detail::Size length( T const& t) {
+constexpr ces::Size length( T const& t) {
     return t.length();
 }
 
-template<detail::Size M>
-constexpr detail::Size length(detail::const_char_array_ref<M>) {
+template<ces::Size M>
+constexpr ces::Size length(ces::const_char_array_ref<M>) {
     return M-1;
 }
 
-template<detail::Size N, typename T>
-constexpr detail::ConstexprString<N> & append( detail::ConstexprString<N> & s1,         T const& s2) {
+template<ces::Size N, typename T>
+constexpr ces::ConstexprString<N> & append( ces::ConstexprString<N> & s1,         T const& s2) {
 
     const auto start =length(s1);
 
     s1.resize(length(s1) + length(s2));
 
-    for(detail::Size i=0;i<length(s2);++i) //0 termination already set
+    for(ces::Size i=0;i<length(s2);++i) //0 termination already set
         s1[start + i] = s2[i];
 
     return s1;
 }
 
 
-template<detail::Size N, detail::Size M>
-constexpr auto operator+( detail::ConstexprString<N> const& s1,         detail::ConstexprString<M> const& s2) {
-    auto r = detail::ConstexprString<N+M>(s1);
-    return append(r,s2);
-}
 
-template<detail::Size N, detail::Size M>
-constexpr auto operator+( detail::ConstexprString<N> const& s1,         detail::const_char_array_ref<M> s2) {
-    auto r = detail::ConstexprString<N+M-1>(s1);
-    return append(r,s2);
-}
-
-template<detail::Size N, detail::Size M>
-constexpr auto operator+( detail::const_char_array_ref<N> s1,   detail::ConstexprString<M> const& s2) {
-    auto r = detail::ConstexprString<N+M-1>(s1);
-    return append(r,s2);
+template<ces::Size N, ces::Size M>
+constexpr auto conditional(bool condition, ces::const_char_array_ref<N> s1,   ces::ConstexprString<M> const& s2) {
+    constexpr auto OutSize = length(s1) > length(s2) ? length(s1) : length(s2);
+    return condition ?
+                ces::ConstexprString<OutSize>(s1) :
+                ces::ConstexprString<OutSize>(s2) ;
 }
 
 
-template<detail::Size N, detail::Size M>
-constexpr bool operator==( detail::ConstexprString<N> const& s1,        detail::const_char_array_ref<M> s2) {
+template<ces::Size N, ces::Size M>
+constexpr bool operator==( ces::ConstexprString<N> const& s1,        ces::const_char_array_ref<M> s2) {
 
     if(s1.length()+1 != M) return false; //length does not include '\0'
 
-    for(detail::Size i=0;i<s1.length();++i)
+    for(ces::Size i=0;i<s1.length();++i)
         if (s1[i]!=s2[i]) return false;
 
     return true;
-
 }
 
 
-template<detail::Size N, detail::Size M>
-constexpr auto conditional(bool condition, detail::const_char_array_ref<N> s1,   detail::ConstexprString<M> const& s2) {
-    constexpr auto OutSize = length(s1) > length(s2) ? length(s1) : length(s2);
-    return condition ?
-                detail::ConstexprString<OutSize>(s1) :
-                detail::ConstexprString<OutSize>(s2) ;
+template<ces::Size N, ces::Size M>
+constexpr auto operator+( ces::ConstexprString<N> const& s1,         ces::ConstexprString<M> const& s2) {
+    auto r = ces::ConstexprString<N+M>(s1);
+    return ces::append(r,s2);
 }
+
+template<ces::Size N, ces::Size M>
+constexpr auto operator+( ces::ConstexprString<N> const& s1,         ces::const_char_array_ref<M> s2) {
+    auto r = ces::ConstexprString<N+M-1>(s1);
+    return ces::append(r,s2);
+}
+
+template<ces::Size N, ces::Size M>
+constexpr auto operator+( ces::const_char_array_ref<N> s1,   ces::ConstexprString<M> const& s2) {
+    auto r = ces::ConstexprString<N+M-1>(s1);
+    return ces::append(r,s2);
+}
+
+
+
+
+
+} //ns
+
+
 
 
 

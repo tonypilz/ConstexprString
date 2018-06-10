@@ -10,8 +10,8 @@ SOURCES += main.cpp \
 
 HEADERS += \
     c_string_concatenate_via_template_char_list_not_practical.h \
-    cstring_concatenation.h \
-    tests.h
+    tests.h \
+    ConstexprString.h
 
 
 

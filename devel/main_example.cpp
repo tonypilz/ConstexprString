@@ -1,9 +1,9 @@
 #include <iostream>
-#include "cstring_concatenation.h"
+#include "ConstexprString.h"
 
 constexpr char foo[] = "foo";
 constexpr char bar[] = "bar";
-constexpr auto foobar = make_string(foo) + " " + bar;
+constexpr auto foobar = ces::make_string(foo) + " " + bar;
 
 int main_()
 {

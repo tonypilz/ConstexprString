@@ -1,12 +1,12 @@
 #pragma once
 
-#include "cstring_concatenation.h"
+#include "ConstexprString.h"
 
 
 constexpr char cref1[] = "abcd1";
 constexpr char cref2[] = "xabcd2";
-constexpr auto ConstexprString1 = make_string("efg1");
-constexpr auto ConstexprString2 = make_string("yyyefg2");
+constexpr auto ConstexprString1 = ces::make_string("efg1");
+constexpr auto ConstexprString2 = ces::make_string("yyyefg2");
 constexpr char expected_ConstexprString1[]    = "efg1";
 
 constexpr auto cref1_ConstexprString1    = cref1 + ConstexprString1;
@@ -26,11 +26,11 @@ constexpr char expected_ConstexprString1_ConstexprString2[] = "efg1yyyefg2";
 
 
 
-static_assert(make_string("") == "","test failed");
-static_assert(make_string("ab") == "ab","test failed");
+static_assert(ces::make_string("") == "","test failed");
+static_assert(ces::make_string("ab") == "ab","test failed");
 
-static_assert(make_string("") + "" == "","test failed");
-static_assert(make_string("") + cref1 == cref1,"test failed");
+static_assert(ces::make_string("") + "" == "","test failed");
+static_assert(ces::make_string("") + cref1 == cref1,"test failed");
 
 static_assert(cref1_ConstexprString1 == expected_cref1_ConstexprString1,"test failed");
 static_assert(ConstexprString1_cref1 == expected_ConstexprString1_cref1,"test failed");
@@ -40,10 +40,10 @@ static_assert(ConstexprString1 + cref1 + "foo" + ConstexprString1 + ConstexprStr
 
 
 
-static_assert(make_string("").empty()==true,"test failed");
-static_assert(make_string("").length()==0,"test failed");
-static_assert(make_string("1").length()==1,"test failed");
-static_assert(make_string("1").empty()==false,"test failed");
+static_assert(ces::make_string("").empty()==true,"test failed");
+static_assert(ces::make_string("").length()==0,"test failed");
+static_assert(ces::make_string("1").length()==1,"test failed");
+static_assert(ces::make_string("1").empty()==false,"test failed");
 
 
-//static_assert(conditional(true , make_string("ab") , make_string("c"))=="ab","test failed");
+//static_assert(conditional(true , ces::make_string("ab") , ces::make_string("c"))=="ab","test failed");
