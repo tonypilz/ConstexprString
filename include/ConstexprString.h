@@ -1,9 +1,8 @@
 #pragma once
 
-#include <iostream> // for operator <<
+#include <iostream> //requried by 'operator<<()'
 
-namespace ces { //ConstexprString
-
+namespace ces { //ces is shorthand for ConstexprString
 
 using Size = int;
 
@@ -11,7 +10,7 @@ template<Size n, typename Char>
 using char_array = Char[n];
 
 template<Size n, typename Char>
-using const_char_array_ref = const Char(&)[n]; //zu nem eigenen typ machen => in den implizit gecastet wird , der ConstexprStringView;
+using const_char_array_ref = const Char(&)[n];
 
 template<typename Char>
 using ConstexprString_iterator = Char*;
@@ -22,10 +21,7 @@ using ConstexprString_const_iterator = const Char*;
 template<Size capacity, typename Char>
 class ConstexprString{
 
-    template<Size,typename> friend class ConstexprString;
-
 public:
-
 
     using Classtype = ConstexprString<capacity,Char>;
     static constexpr Size StorageArraySize = capacity+1;
@@ -75,7 +71,6 @@ public:
         updateNullTerminator();
     }
 
-
     constexpr Char& operator[](Size idx){ return str[idx]; }
     constexpr Char const& operator[](Size idx) const{ return str[idx]; }
 
@@ -95,17 +90,20 @@ private:
 
     constexpr void updateNullTerminator(){  str[_length] = '\0'; }
 
+    template<Size,typename> friend class ConstexprString;
+
     Size _length;
     StorageArray str = {};
-};
+
+}; //class
+
+
 
 
 template<Size N, typename Char>
 constexpr ConstexprString<N-1,Char> make_string(const_char_array_ref<N,Char> s) {
     return {s};
 }
-
-
 
 template<Size M, typename Char>
 constexpr Size length(ConstexprString<M,Char> const& t) {
@@ -130,19 +128,16 @@ constexpr ConstexprString<N,Char> & append( ConstexprString<N, Char> & s1,      
     return s1;
 }
 
-
-
 template<Size N, Size M, typename Char>
 constexpr auto conditional(bool condition, const_char_array_ref<N,Char> s1,   ConstexprString<M,Char> const& s2) {
     constexpr auto l1 = length(s1);
-    constexpr auto l2 = M;
+    constexpr auto l2 = M; //todo - suboptimal
     constexpr auto OutSize = l1 > l2 ? l1 : l2;
 
     return condition ?
                 ConstexprString<OutSize,Char>(s1) :
                 ConstexprString<OutSize,Char>(s2) ;
 }
-
 
 template<Size N, Size M, typename Char>
 constexpr bool operator==( ConstexprString<N,Char> const& s1,        ConstexprString<M,Char> const& s2) {
@@ -166,8 +161,6 @@ constexpr bool operator==(  const_char_array_ref<M,Char> s1,       ConstexprStri
 }
 
 
-
-
 template<Size N, Size M, typename Char>
 constexpr auto operator+( ConstexprString<N,Char> const& s1,         ConstexprString<M,Char> const& s2) {
     auto r = ConstexprString<N+M,Char>(s1);
@@ -186,17 +179,12 @@ constexpr auto operator+( const_char_array_ref<N,Char> s1,   ConstexprString<M,C
     return append(r,s2);
 }
 
-
-
-
-
-
 template<Size N, typename Char>
 constexpr std::ostream& operator<<(std::ostream& s, ConstexprString<N,Char> const& a) {
     return s<<a.c_str();
 }
 
-} //ns
+} //ns ces
 
 
 
