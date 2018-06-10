@@ -5,117 +5,165 @@
 
 // char als template
 
-//deducation guides ersetzt die make funktion
+// deducation guides ersetzt die make funktion
 
 // compiler explorer checken
 
-// leerer ctor, assignment , iterators begin end
-
-// für ternäre operatoren brauchen wir assign von kleinerem string
-
-
-//size sollte zu capacity => neue size variable  => make fixed => das wird zu kompliziert, der nutzen ist gering?
-
 // datei umbenennen
+
+// eigene namespace
+
+// iteratoren
+
+// algos
+
+// substr(s1, 4) + "foo"
 
 
 namespace detail {
 
 using Char = char;
+using Size = int;
 
-
-template<int n>
+template<Size n>
 using char_array = Char[n];
 
-template<int n>
-using const_char_array_ref = const Char(&)[n]; //zu nem eigenen typ machen
+template<Size n>
+using const_char_array_ref = const Char(&)[n]; //zu nem eigenen typ machen => in den implizit gecastet wird , der ConstexprStringView;
 
 
-template<int N, int M>
-struct ConstexprStringSize {
-    static constexpr int value = N + M - 1; //-1 for ommitting '\0' on the first string
-};
-
-
-
-//NtArray
-template<int Size>
+template<Size capacity>
 class ConstexprString{
+
+    template<Size> friend class ConstexprString;
 
 public:
 
-    static_assert(Size>0,""); //allways 0 terminated
 
-    static constexpr int size = Size; //length including '\0'
+    using Classtype = ConstexprString<capacity>;
+    static constexpr Size StorageArraySize = capacity+1;
+    using StorageArray = char_array<StorageArraySize>;  // the + 1 asserts '\0' terminatability
 
+    static_assert(capacity>=0,"");
 
-    template<int N, int M>
-    constexpr ConstexprString(ConstexprString<N> const& s1,ConstexprString<M> const& s2){
+    constexpr ConstexprString() : _length(0) { updateNullTerminator();}
 
-        static_assert(size == ConstexprStringSize<N,M>::value, "string size mismatch, use ConstexprStringType to compute actual size of ConstexprString");
-
-        constexpr auto n = N-1; //-1 for ommitting '\0' on the first string
-
-        for(int i=0;i<n;++i) str[i] = s1[i];
-        for(int i=0;i<M;++i) str[i+n] = s2[i];
+    template<Size N>
+    constexpr ConstexprString(ConstexprString<N> const& other) : _length(other._length){
+        static_assert(N <= capacity, "invalid size");
+        for(Size i=0;i<other._length;++i) str[i] = other.str[i]; //todo std copy
+        updateNullTerminator();
     }
 
-    template<int N>
-    constexpr ConstexprString(const_char_array_ref<N> s){
-        static_assert(N==Size,"");
-        for(int i=0;i<N;++i) str[i] = s[i];
+    template<Size N>
+    constexpr ConstexprString(const_char_array_ref<N> s) : _length(N-1){
+        static_assert(N<=capacity+1,"invalid size");
+        for(Size i=0;i<_length;++i) str[i] = s[i];
+        updateNullTerminator();
     }
 
-    constexpr Char& operator[](int idx){ return str[idx]; }
-    constexpr Char const& operator[](int idx) const{ return str[idx]; }
+    template<Size N>
+    constexpr Classtype operator=(ConstexprString<N> const& other) {
+        static_assert(N <= capacity, "invalid size");
+        _length = other._length;
+        for(Size i=0;i<other._length;++i) str[i] = other.str[i]; //todo std copy
+        updateNullTerminator();
+    }
+
+    template<Size N>
+    constexpr Classtype operator=(const_char_array_ref<N> s) {
+        static_assert(N <= capacity+1, "invalid size");
+        _length = N-1;
+        for(Size i=0;i<_length;++i) str[i] = s[i]; //todo std copy
+        updateNullTerminator();
+    }
+
+    constexpr void resize (Size n){
+        _length = n;
+        updateNullTerminator();
+    }
 
 
-    constexpr operator const_char_array_ref<size>() const{ return str; }
+    constexpr Char& operator[](Size idx){ return str[idx]; }
+    constexpr Char const& operator[](Size idx) const{ return str[idx]; }
+
+    using const_char_array_ref_equivalent = const_char_array_ref<StorageArraySize>;
+
+    constexpr operator const_char_array_ref_equivalent() const{ return str; } //decay into array ref for printing
 
     constexpr const Char* c_str() const{ return static_cast<const Char*>(str); }
-    constexpr int length() const { return size-1;}
-    constexpr bool empty() const { return size<=1;}
+    constexpr Size length() const { return _length;}
+    constexpr Size size() const { return _length;}
+    constexpr bool empty() const { return _length==0;}
 
 private:
 
-    char_array<size> str = {}; // '\0' terminated
+    constexpr void updateNullTerminator(){  str[_length] = '\0'; }
+
+    Size _length;
+
+    StorageArray str = {};
 
 };
 
 
-template<int N, int M>
-using ConcatenatedString = ConstexprString<ConstexprStringSize<N,M>::value>; //type deduction guide
+} //namespace
 
-
-}
-
-template<int N>
-constexpr detail::ConstexprString<N> make_string(detail::const_char_array_ref<N> s) {
+template<detail::Size N>
+constexpr detail::ConstexprString<N-1> make_string(detail::const_char_array_ref<N> s) {
     return {s};
 }
 
 
-template<int N, int M>
+template<typename T>
+constexpr detail::Size length( T const& t) {
+    return t.length();
+}
+
+template<detail::Size M>
+constexpr detail::Size length(detail::const_char_array_ref<M>) {
+    return M-1;
+}
+
+template<detail::Size N, typename T>
+constexpr detail::ConstexprString<N> & append( detail::ConstexprString<N> & s1,         T const& s2) {
+
+    const auto start =length(s1);
+
+    s1.resize(length(s1) + length(s2));
+
+    for(detail::Size i=0;i<length(s2);++i) //0 termination already set
+        s1[start + i] = s2[i];
+
+    return s1;
+}
+
+
+template<detail::Size N, detail::Size M>
 constexpr auto operator+( detail::ConstexprString<N> const& s1,         detail::ConstexprString<M> const& s2) {
-    return detail::ConcatenatedString<N,M>(s1,s2);
+    auto r = detail::ConstexprString<N+M>(s1);
+    return append(r,s2);
 }
 
-template<int N, int M>
+template<detail::Size N, detail::Size M>
 constexpr auto operator+( detail::ConstexprString<N> const& s1,         detail::const_char_array_ref<M> s2) {
-    return detail::ConcatenatedString<N,M>(s1,detail::ConstexprString<M>{s2});
+    auto r = detail::ConstexprString<N+M-1>(s1);
+    return append(r,s2);
 }
 
-template<int N, int M>
+template<detail::Size N, detail::Size M>
 constexpr auto operator+( detail::const_char_array_ref<N> s1,   detail::ConstexprString<M> const& s2) {
-    return detail::ConcatenatedString<N,M>(detail::ConstexprString<N>{s1},s2);
+    auto r = detail::ConstexprString<N+M-1>(s1);
+    return append(r,s2);
 }
 
 
-template<int N, int M>
-constexpr bool operator==( detail::ConstexprString<N> const& s1,         detail::const_char_array_ref<M> s2) {
-    static_assert(N==M,"");
+template<detail::Size N, detail::Size M>
+constexpr bool operator==( detail::ConstexprString<N> const& s1,        detail::const_char_array_ref<M> s2) {
 
-    for(int i=0;i<N;++i)
+    if(s1.length()+1 != M) return false; //length does not include '\0'
+
+    for(detail::Size i=0;i<s1.length();++i)
         if (s1[i]!=s2[i]) return false;
 
     return true;
@@ -123,10 +171,13 @@ constexpr bool operator==( detail::ConstexprString<N> const& s1,         detail:
 }
 
 
-//template<int N, int M>
-//constexpr auto conditional(bool condition, detail::const_char_array_ref<N> s1,   detail::ConstexprString<M> const& s2) {
-//    return detail::ConcatenatedString<N,M>(detail::ConstexprString<N>{s1},s2); //return max
-//}
+template<detail::Size N, detail::Size M>
+constexpr auto conditional(bool condition, detail::const_char_array_ref<N> s1,   detail::ConstexprString<M> const& s2) {
+    constexpr auto OutSize = length(s1) > length(s2) ? length(s1) : length(s2);
+    return condition ?
+                detail::ConstexprString<OutSize>(s1) :
+                detail::ConstexprString<OutSize>(s2) ;
+}
 
 
 
