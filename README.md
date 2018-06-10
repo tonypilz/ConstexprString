@@ -1,12 +1,16 @@
-# CompileTimeCStringConcatenation
-A small single header file, macro-free, tested c++14 library without dependencies for concatenating c-strings at compile-time.
+# ConstexprString
+The library consists of a small string class which allows for compile time string manipulations like eg concatenation. 
 
- - tested under MinGW32 GCC 5.4.
- - Compiles under GCC 5.1-7.2, ICC 17, Clang 3.5-3.9 (higher clang compiler complain!)
- - The abstraction (CString) will be fully optimized out starting at optimization Level 1 (-O1)
+The library
+ - comes in a single header file, is 
+ - macro-free, 
+ - depency-free,
+ - tested under GCC 7.2.0
+ - Compiles under GCC 5.1-8.1, ICC 17-18, Clang 3.5-6.0
+ - The abstraction will be fully optimized out at optimization Level 2 (-O2)
 
 ## Motivation
-On the crusade against preprocessor macros one regularly comes across c-string definitions like
+On the day to day work one often comes across definitions like
 
 ```cpp
 #define TMP_DIR "/tmp"
@@ -14,52 +18,39 @@ On the crusade against preprocessor macros one regularly comes across c-string d
 #define TMP_FILE_2 TMP_DIR "/file2"
 ``` 
 
-In the example above one can see that c-string definitions have the nice property of forming new c-strings if they stand
-next to each other which usually prevents people from replacing the macro definitions by constexpr ie
+where macro based string definitions allow the user to combine c-strings to form new ones. Since macros are best to be avoided one needs a comparable mechanism on the c++ language level.
+
+ This library provides such a mechanism which allows us to rewrite the example above without macros: 
 
 ```cpp
-constexpr auto TMP_DIR  = "/tmp"; //ok
-constexpr auto TMP_FILE_1 = TMP_DIR "/file1"; //compile error
-``` 
-
-To still avoid these macros one needs a method to concatenate c-strings at compile time which is provided
-by this library. The library defines the function ```concatenate()``` which can be used to replace the macros:
-
-```cpp
-constexpr char TMP_DIR[] = "/tmp";
-constexpr auto TMP_FILE_1 = concatenate(TMP_DIR,"/file1");
-constexpr auto TMP_FILE_2 = concatenate(TMP_DIR,"/file2");
+constexpr auto TMP_DIR = ces::make_string("/tmp");
+constexpr auto TMP_FILE_1 = TMP_DIR + "/file1";
+constexpr auto TMP_FILE_2 = TMP_DIR + "/file2";
 ``` 
 
 ## Working Example
 
 ```cpp
-#include <iostream>
-#include "cstring_concatenation.h"
+#include "ConstexprString.h"
+
 
 constexpr char foo[] = "foo";
 constexpr char bar[] = "bar";
-constexpr auto foobar = concatenate(foo, " ", bar);
+constexpr auto foobar = ces::make_string(foo) + " " + bar;
 
-int main()
+int main_()
 {
     std::cout << foobar << std::endl; //prints "foo bar"
     return 0;
 }
 ``` 
 
-Try it out on [ideone](https://ideone.com/r18SX2)).
+Try it out on [ideone](https://ideone.com/ynF07x).
 
-## Known Issues
+### How the example works
 
-Due to c++ language limitations a general definition of ```concatenate()``` which allows an arbitrary number of c-string arguments ie
-```cpp
-constexpr auto str = concatenate("a","b","c","d","e","f","g",...);
-``` 
-cannot be provided. Thus the library implementation will alyways be restricted. The current implementation allows for 3 leading c-strings and an unlimited amount of concatenation results. To concatenate more c-string use the following workarounds:
+The call to function `ces::make_string(foo)` returns an instance of `ces::ConstexprString` which contains a copy of the argument `foo` and for which an appropriate `operator+()` is provided for the subequent calls `+" " + bar`.
 
-```cpp
-constexpr auto str = concatenate("a","b","c",concatenate("d","e","f",concatenate("g",...)));
-constexpr auto str = concatenate("a","b","c",detail::makeCString("d"), detail::makeCString("e"),...);
-``` 
+# Note
 
+This library provides only a limited set of compile time string operations. For a more complete set one can use other compile-time libraries like [sprout](https://github.com/bolero-MURAKAMI/Sprout). 
