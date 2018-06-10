@@ -53,19 +53,21 @@ public:
     }
 
     template<Size N>
-    constexpr Classtype operator=(ConstexprString<N, Char> const& other) {
+    constexpr Classtype& operator=(ConstexprString<N, Char> const& other) {
         static_assert(N <= capacity, "invalid size");
         _length = other._length;
         for(Size i=0;i<other._length;++i) str[i] = other.str[i];
         updateNullTerminator();
+        return *this;
     }
 
     template<Size N>
-    constexpr Classtype operator=(const_char_array_ref<N, Char> s) {
+    constexpr Classtype& operator=(const_char_array_ref<N, Char> s) {
         static_assert(N <= capacity+1, "invalid size");
         _length = N-1;
         for(Size i=0;i<_length;++i) str[i] = s[i];
         updateNullTerminator();
+        return *this;
     }
 
     constexpr void resize (Size n){
